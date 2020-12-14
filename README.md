@@ -5,7 +5,7 @@ MCBBS自动签到脚本
 代码已经去除人机验证通过部分,需要自行补全.  
 实现:
 ```php
-function passGeeTest(...):array {}
+function passGeeTest(...):array|bool {}
 ```
 其中:
 ```php
@@ -14,3 +14,4 @@ array(
   [1] => "validate result"
 )
 ```
+或者失败时返回`false`.
