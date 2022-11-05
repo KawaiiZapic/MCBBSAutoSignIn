@@ -1,10 +1,70 @@
 <?php
+set_time_limit(130);
+require(__DIR__ . '/2captcha-php/src/autoloader.php');
+
+// 2Captcha的api_key，用于过极验验证
+$api_key = "";
+// mcbbs的cookie
 $cookie = "";
 
+
 if(checkSignIn($cookie)){die();}
-$chal = passGeeTest($passKey);
+$chal = passGeeTest($api_key, $cookie);
 if(!$chal){die();}
 var_dump(signIn($cookie,"1","记上一笔，hold住我的快乐！",$chal));
+
+function passGeeTest(string $api_key, string $cookie) : array|bool {
+    $solver = new \TwoCaptcha\TwoCaptcha($api_key);
+    // To bypass GeeTest first we need to get new challenge value
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://www.mcbbs.net/plugin.php?id=geetest3&amp;model=start&amp;t=1667578418195');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+
+    curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
+
+    $headers = array();
+    $headers[] = 'Authority: www.mcbbs.net';
+    $headers[] = 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
+    $headers[] = 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6';
+    $headers[] = 'Cache-Control: max-age=0';
+    $headers[] = 'Cookie: '.$cookie;
+    $headers[] = 'Sec-Ch-Ua: \"Microsoft Edge\";v=\"107\", \"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"';
+    $headers[] = 'Sec-Ch-Ua-Mobile: ?0';
+    $headers[] = 'Sec-Ch-Ua-Platform: \"Windows\"';
+    $headers[] = 'Sec-Fetch-Dest: document';
+    $headers[] = 'Sec-Fetch-Mode: navigate';
+    $headers[] = 'Sec-Fetch-Site: none';
+    $headers[] = 'Sec-Fetch-User: ?1';
+    $headers[] = 'Upgrade-Insecure-Requests: 1';
+    $headers[] = 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.26';
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+    $resp = curl_exec($ch);
+    if (curl_errno($ch)) {
+        echo 'Error:' . curl_error($ch);
+    }
+    curl_close($ch);
+    $data = json_decode($resp);
+    $challenge = $data->challenge;
+    // $challenge = explode(";", $resp)[0];
+
+    // Then we are ready to make a call to 2captcha API
+    try {
+        $result = $solver->geetest([
+            'gt'        => 'c4c41e397ee921e9862d259da2a031c4',
+            'apiServer' => 'api.geetest.com',
+            'challenge' => $challenge,
+           'url'       => 'https://www.mcbbs.net/plugin.php?id=dc_signin',
+        ]);
+    } catch (\Exception $e) {
+        die($e->getMessage());
+    }
+    $data = json_decode($result->code,true);
+    return $data;
+
+}
 
 function getFormHash(string $cookie) {
     $data = get("https://www.mcbbs.net/home.php?mod=spacecp&inajax=1",$cookie);
@@ -76,9 +136,9 @@ function signIn(string $cookie, string $emote,string $content,array $chal) {
         "emotid" => $emote,
         "referer" => "https://www.mcbbs.net/plugin.php?id=dc_signin",
         "content" => $content,
-        "geetest_challenge" => $chal[0],
-        "geetest_validate" => $chal[1],
-        "geetest_seccode" => $chal[1] . "|jordan"
+        "geetest_challenge" => $chal['geetest_challenge'],
+        "geetest_validate" => $chal['geetest_validate'],
+        "geetest_seccode" => $chal['geetest_seccode']
     ]);
     if(!preg_match("/签到成功/",$result)){
         echo $result.PHP_EOL;
