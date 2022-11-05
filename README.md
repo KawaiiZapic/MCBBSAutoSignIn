@@ -2,16 +2,13 @@
 MCBBS自动签到脚本
 
 -----------------------------
-代码已经去除人机验证通过部分,需要自行补全.  
-实现:
-```php
-function passGeeTest(...):array|bool {}
+代码使用2Captcha服务来过极验验证
+
+[网址](2captcha.com)
 ```
-其中:
-```php
-array(
-  [0] => "challenge",
-  [1] => "validate result"
-)
+// 2Captcha的api_key，用于过极验验证
+$api_key = "";
+// mcbbs的cookie
+$cookie = "";
 ```
-或者失败时返回`false`.
+api_key和cookie自行填入
