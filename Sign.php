@@ -3,9 +3,9 @@ set_time_limit(130);
 require(__DIR__ . '/2captcha-php/src/autoloader.php');
 
 // 2Captcha的api_key，用于过极验验证
-$api_key = "";
+$api_key = "563e709bf755dde34f185d0d28b8dc6c";
 // mcbbs的cookie
-$cookie = "";
+$cookie = "Hm_lvt_affdf09dddabcdf2d681acefa474b973=1666287951,1666329695; ZxYQ_8cea_pc_size_c=0; ZxYQ_8cea_saltkey=M0FBLF4P; ZxYQ_8cea_lastvisit=1667623678; ZxYQ_8cea_ulastactivity=9f7cx73%2FuOQ7dETTT8Tkemy%2F1tcs1QiaufaTUH64o29iQRY3R3Zz; ZxYQ_8cea_auth=548elvuU9e0r4GkR29%2BVo8ITX71avzBXYsjkYt6Rc%2BhJcrxhso%2BkdKWeM32zuXQZiv1jtBXuuOMLPVVY6Ef5dBFsTjlX; ZxYQ_8cea_lastcheckfeed=1148708%7C1667627298; ZxYQ_8cea_connect_is_bind=0; ZxYQ_8cea_last_message_key=126c95641ab65fcbd500e2d4f3ef138c; ZxYQ_8cea_last_formhash=8b1c67e8fbad61537b8aac0eaaa74505; ZxYQ_8cea_home_diymode=1; ZxYQ_8cea_sid=GMQlwl; ZxYQ_8cea_lip=112.96.226.226%2C1667629920; ZxYQ_8cea_sendmail=1; ZxYQ_8cea_lastact=1667630124%09home.php%09spacecp; ZxYQ_8cea_checkpm=1";
 
 
 if(checkSignIn($cookie)){die();}
